@@ -61,13 +61,13 @@ fn main() {
     );
     println!("Note the following");
     println!(r#"-4 * s1 + s2 = -4 * a1  + 4 * challenge * x1 + a2 - challenge * x2"#);
-    println!(r#"             = \______/ + \_________________/"#);
+    println!(r#"             = \______/   \_________________/"#);
     println!(r#"                  |               |"#);
-    println!(r#"             =   -a2 +     challenge * x2   + a2 - challenge * x2"#);
+    println!(r#"             =   -a2    +   challenge * x2   + a2 - challenge * x2"#);
     println!(r#"             = 0"#);
     println!("Hence by checking the relation on s1 and s2 we can verify the relation");
     println!(
-        "Relation is :{}",
+        "The proofer has knowledge of secrets and blindings AND the relation 4*x1 = x2 is fulfilled: {}",
         schnorr_verify_relation(
             &g,
             &h,
@@ -205,8 +205,8 @@ where
     let c1_prime = s1.0 * g + s1.1 * h + challenge * c1.commitment;
     let c2_prime = s2.0 * g + s2.1 * h + challenge * c2.commitment;
     let quot = linear_system(&s1.0, &s2.0);
-    println!("{}", c1_prime == proof_base1 && c2_prime == proof_base2);
-    println!("{}", relation(&quot));
+    println!("Proof of knowledge: {}", c1_prime == proof_base1 && c2_prime == proof_base2);
+    println!("Proof of relation: {}", relation(&quot));
     c1_prime == proof_base1 && c2_prime == proof_base2 && relation(&quot)
 }
 
