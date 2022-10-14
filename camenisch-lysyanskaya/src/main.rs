@@ -45,6 +45,8 @@ fn camenisch_lysyanskaya() {
     let c_pre = rng.gen_biguint_below(&n);
     let c = (&c_pre * &c_pre) % &n;
 
+    println!("Generated a1, a2, b and c");
+
     let s = rng.gen_biguint_range(&(2u32 * &n), &(3u32 * &n));
     let mut e = 0.to_biguint().unwrap();
     println!("Find a prime for e");
@@ -57,8 +59,9 @@ fn camenisch_lysyanskaya() {
             }
         }
     }
-
+    // The origin of the wine
     let message = BigUint::from_bytes_be("Bordeaux".as_bytes());
+    // The vintage of the wine
     let message2 = BigUint::from_bytes_be("1980".as_bytes());
 
     let phi = (p - 1u32) * (q - 1u32);
@@ -68,12 +71,12 @@ fn camenisch_lysyanskaya() {
         .to_biguint()
         .unwrap();
 
-    println!("Calculate the signature");
+    println!("Calculate the signature value for v by using the inverse of e");
     let v = (a.modpow(&message, &n) * a2.modpow(&message2, &n) * b.modpow(&s, &n) * &c)
         .modpow(&e_invert, &n)
         % &n;
 
-    println!("({},{},{})", s, e, v);
+    println!("Our signature {{s,e,v}} (full disclosure): ({},{},{})", s, e, v);
 
     println!("Calculate a commitment to the vintage of the wine");
     let C = a2.modpow(&message2, &n) * b.modpow(&(&s - 45u32), &n);
@@ -82,7 +85,7 @@ fn camenisch_lysyanskaya() {
         v.modpow(&e, &n) % &n
             == (a.modpow(&message, &n) * a2.modpow(&message2, &n) * b.modpow(&s, &n) * &c) % &n
     );
-
+    println!("Our signature {{s,e,v}} (only disclosing one property): ({},{},{})", 45, e, v);
     println!(
         "Revealing only the origin signature is correct: {}",
         v.modpow(&e, &n) % &n
@@ -91,14 +94,14 @@ fn camenisch_lysyanskaya() {
 }
 
 fn is_safe_prime(n: &BigUint) -> bool {
-    is_prime(n)
-    && is_prime(&(2u32*n + 1u32))
+    is_prime(&((n - 1u32) / 2u32)) && is_prime(n)
 }
 
 fn is_prime(n: &BigUint) -> bool {
-    miller_rabin(n, 1000)
+    miller_rabin(n, 100)
 }
 
+/// Apply the [miller rabin test](https://en.wikipedia.org/wiki/Miller%E2%80%93Rabin_primality_test) to test for primeality
 fn miller_rabin(p: &BigUint, rounds: usize) -> bool {
     let mut rng = rand::thread_rng();
     if p == &2u32.to_biguint().unwrap() {
